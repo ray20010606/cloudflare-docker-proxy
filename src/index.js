@@ -1,26 +1,4 @@
 import DOCS from './help.html'
- 
-// return docs
-if (url.pathname === "/") {
-  return new Response(DOCS, {
-    status: 200,
-    headers: {
-      "content-type": "text/html"
-    }
-  });
-}
-
-
-
-addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request))
-});
-
-async function handleRequest(request) {
-  return new Response(DOCS, {
-    headers: { 'Content-Type': 'text/html' },
-  });
-};
 
 const dockerHub = "https://registry-1.docker.io";
 
@@ -34,19 +12,24 @@ const routes = {
   "cloudsmith.dockerray0606.org": "https://docker.cloudsmith.io",
 };
 
-
-function routeByHosts(host) {
-  if (host in routes) {
-    return routes[host];
-  }
-  if (MODE == "debug") {
-    return TARGET_UPSTREAM;
-  }
-  return "";
-}
+// 添加事件监听器处理请求
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request))
+});
 
 async function handleRequest(request) {
   const url = new URL(request.url);
+  
+  // 如果路径为 "/"，返回 docs 页面
+  if (url.pathname === "/") {
+    return new Response(DOCS, {
+      status: 200,
+      headers: {
+        "content-type": "text/html"
+      }
+    });
+  }
+
   const upstream = routeByHosts(url.hostname);
   if (upstream === "") {
     return new Response(
@@ -58,32 +41,30 @@ async function handleRequest(request) {
       }
     );
   }
+
   const isDockerHub = upstream == dockerHub;
   const authorization = request.headers.get("Authorization");
+
+  // 处理 Docker v2 认证请求
   if (url.pathname == "/v2/") {
     const newUrl = new URL(upstream + "/v2/");
     const headers = new Headers();
     if (authorization) {
       headers.set("Authorization", authorization);
     }
-    // check if need to authenticate
+    
     const resp = await fetch(newUrl.toString(), {
       method: "GET",
       headers: headers,
       redirect: "follow",
     });
+
     if (resp.status === 401) {
-      if (MODE == "debug") {
-        headers.set(
-          "Www-Authenticate",
-          `Bearer realm="http://${url.host}/v2/auth",service="cloudflare-docker-proxy"`
-        );
-      } else {
-        headers.set(
-          "Www-Authenticate",
-          `Bearer realm="https://${url.hostname}/v2/auth",service="cloudflare-docker-proxy"`
-        );
-      }
+      const headers = new Headers();
+      headers.set(
+        "Www-Authenticate",
+        `Bearer realm="https://${url.hostname}/v2/auth",service="cloudflare-docker-proxy"`
+      );
       return new Response(JSON.stringify({ message: "UNAUTHORIZED" }), {
         status: 401,
         headers: headers,
@@ -92,24 +73,27 @@ async function handleRequest(request) {
       return resp;
     }
   }
-  // get token
+
+  // 处理 Docker v2 的 token 获取
   if (url.pathname == "/v2/auth") {
     const newUrl = new URL(upstream + "/v2/");
     const resp = await fetch(newUrl.toString(), {
       method: "GET",
       redirect: "follow",
     });
+
     if (resp.status !== 401) {
       return resp;
     }
+
     const authenticateStr = resp.headers.get("WWW-Authenticate");
     if (authenticateStr === null) {
       return resp;
     }
+
     const wwwAuthenticate = parseAuthenticate(authenticateStr);
     let scope = url.searchParams.get("scope");
-    // autocomplete repo part into scope for DockerHub library images
-    // Example: repository:busybox:pull => repository:library/busybox:pull
+
     if (scope && isDockerHub) {
       let scopeParts = scope.split(":");
       if (scopeParts.length == 3 && !scopeParts[1].includes("/")) {
@@ -117,10 +101,11 @@ async function handleRequest(request) {
         scope = scopeParts.join(":");
       }
     }
+
     return await fetchToken(wwwAuthenticate, scope, authorization);
   }
-  // redirect for DockerHub library images
-  // Example: /v2/busybox/manifests/latest => /v2/library/busybox/manifests/latest
+
+  // DockerHub 路由重定向
   if (isDockerHub) {
     const pathParts = url.pathname.split("/");
     if (pathParts.length == 5) {
@@ -130,19 +115,29 @@ async function handleRequest(request) {
       return Response.redirect(redirectUrl, 301);
     }
   }
-  // foward requests
+
+  // 转发请求到上游服务器
   const newUrl = new URL(upstream + url.pathname);
   const newReq = new Request(newUrl, {
     method: request.method,
     headers: request.headers,
     redirect: "follow",
   });
+
   return await fetch(newReq);
 }
 
+function routeByHosts(host) {
+  if (host in routes) {
+    return routes[host];
+  }
+  if (MODE === "debug") {
+    return TARGET_UPSTREAM;
+  }
+  return "";
+}
+
 function parseAuthenticate(authenticateStr) {
-  // sample: Bearer realm="https://auth.ipv6.docker.com/token",service="registry.docker.io"
-  // match strings after =" and before "
   const re = /(?<=\=")(?:\\.|[^"\\])*(?=")/g;
   const matches = authenticateStr.match(re);
   if (matches == null || matches.length < 2) {
@@ -162,7 +157,7 @@ async function fetchToken(wwwAuthenticate, scope, authorization) {
   if (scope) {
     url.searchParams.set("scope", scope);
   }
-  headers = new Headers();
+  const headers = new Headers();
   if (authorization) {
     headers.set("Authorization", authorization);
   }
