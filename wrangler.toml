@@ -1,5 +1,6 @@
-# 指定兼容性日期
+# 顶层定义 compatibility_date 和 main
 compatibility_date = "2024-09-20"
+main = "src/index.js"  # 入口文件路径
 
 [env.production]
 name = "cloudflare-docker-proxy"
@@ -10,7 +11,7 @@ routes = [
   { pattern = "k8s-gcr.dockerray0606.org", custom_domain = true },
   { pattern = "k8s.dockerray0606.org", custom_domain = true },
   { pattern = "ghcr.dockerray0606.org", custom_domain = true },
-  { pattern = "cloudsmith.dockerray0606.org", custom_domain = true },
+  { pattern = "cloudsmith.dockerray0606.org", custom_domain = true }
 ]
 
 [env.production.vars]
