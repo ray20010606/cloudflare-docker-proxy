@@ -11,7 +11,7 @@
     "wrangler": "^3.36.0"
   },
   "scripts": {
-    "deploy": "wrangler deploy",  # 将 publish 替换为 deploy
+    "deploy": "wrangler deploy", 
     "format": "prettier --write '**/*.{js,css,json,md}'",
     "build": "webpack",
     "dev": "wrangler dev src/index.js --env dev"
