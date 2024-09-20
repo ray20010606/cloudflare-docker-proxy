@@ -1,9 +1,8 @@
 {
-  "name": "cloudflare-docker-proxy",
+  "name": "flat-wind-9e60",
   "private": true,
-  "description": "",
   "version": "1.0.0",
-  "author": "ciiiii <allen.cccccnm@gmail.com>",
+  "author": "ray0606 <dockerray0606.org>",
   "dependencies": {},
   "devDependencies": {
     "prettier": "^2.4.1",
@@ -12,7 +11,7 @@
     "wrangler": "^3.36.0"
   },
   "scripts": {
-    "deploy": "wrangler publish",
+    "deploy": "wrangler deploy",  # 将 publish 替换为 deploy
     "format": "prettier --write '**/*.{js,css,json,md}'",
     "build": "webpack",
     "dev": "wrangler dev src/index.js --env dev"
