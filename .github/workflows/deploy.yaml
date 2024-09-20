@@ -1,3 +1,22 @@
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Yarn
+        run: |
+          npm install -g yarn
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build and Deploy to Workers
+        run: yarn run deploy
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
 name: Deploy to Cloudflare Workers
 
 on:
