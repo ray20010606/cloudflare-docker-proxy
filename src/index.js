@@ -12,10 +12,15 @@ if (url.pathname === "/") {
 
 
 
-addEventListener("fetch", (event) => {
-  event.passThroughOnException();
-  event.respondWith(handleRequest(event.request));
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request))
 });
+
+async function handleRequest(request) {
+  return new Response(DOCS, {
+    headers: { 'Content-Type': 'text/html' },
+  });
+};
 
 const dockerHub = "https://registry-1.docker.io";
 
