@@ -1,6 +1,6 @@
 # 顶层定义 compatibility_date 和 name
 compatibility_date = "2024-09-20"
-name = "cloudflare-docker-proxy"  # 指定 Worker 的全局名称
+name = "cloudflare-docker-proxy"  # Worker 名称，确保这个字段存在
 
 [env.production]
 routes = [
