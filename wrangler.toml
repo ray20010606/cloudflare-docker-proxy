@@ -1,5 +1,5 @@
-# 默认的入口文件，可以根据你的项目路径调整
-main = "src/index.js"  # 你项目中的入口文件
+# 指定兼容性日期
+compatibility_date = "2024-09-20"
 
 [env.production]
 name = "cloudflare-docker-proxy"
@@ -10,12 +10,11 @@ routes = [
   { pattern = "k8s-gcr.dockerray0606.org", custom_domain = true },
   { pattern = "k8s.dockerray0606.org", custom_domain = true },
   { pattern = "ghcr.dockerray0606.org", custom_domain = true },
-  { pattern = "cloudsmith.dockerray0606.org", custom_domain = true }
+  { pattern = "cloudsmith.dockerray0606.org", custom_domain = true },
 ]
 
 [env.production.vars]
 MODE = "production"
-# 确保 TARGET_UPSTREAM 设置为正确的 URL 或 IP 地址，或者删除它
 TARGET_UPSTREAM = "https://upstream.server.url"
 
 [env.staging]
@@ -24,5 +23,4 @@ route = { pattern = "docker-staging.dockerray0606.org", custom_domain = true }
 
 [env.staging.vars]
 MODE = "staging"
-# 同样为 staging 环境定义 TARGET_UPSTREAM
 TARGET_UPSTREAM = "https://staging-upstream.server.url"
