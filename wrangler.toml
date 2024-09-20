@@ -1,6 +1,5 @@
-# 顶层定义 compatibility_date 和 name
-compatibility_date = "2024-09-20"
-name = "flat-wind-9e60"  # Worker 名称，确保这个字段存在
+compatibility_date = "2024-09-20"  # 添加 compatibility_date
+name = "flat-wind-9e60"  # 指定 Worker 名称
 
 [env.production]
 routes = [
@@ -18,7 +17,7 @@ MODE = "production"
 TARGET_UPSTREAM = "https://upstream.server.url"
 
 [env.staging]
-name = "cloudflare-docker-proxy-staging"
+name = "cloudflare-docker-proxy-staging"  # 添加 staging 环境的名称
 route = { pattern = "docker-staging.dockerray0606.org", custom_domain = true }
 
 [env.staging.vars]
