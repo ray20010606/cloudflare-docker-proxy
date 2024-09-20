@@ -12,6 +12,7 @@
     "wrangler": "^3.36.0"
   },
   "scripts": {
+    "deploy": "wrangler publish",
     "format": "prettier --write '**/*.{js,css,json,md}'",
     "build": "webpack",
     "dev": "wrangler dev src/index.js --env dev"
